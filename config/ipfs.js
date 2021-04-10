@@ -1,5 +1,7 @@
 const IPFS = require('ipfs');
-const ipfsClient = require('ipfs-http-client')
+const ipfsClient = require('ipfs-http-client');
+const pinataSDK = require('@pinata/sdk');
+
 let ipfs = null;
 
 module.exports.startIPFS = async () => {
@@ -37,3 +39,6 @@ module.exports.clientIPFS = () => ipfsClient({
     //     authorization: 'Bearer ' + TOKEN
     // }
 })
+
+
+module.exports.pinata = () => pinataSDK(process.env.PINATA_KEY, process.env.PINATA_SECRECT);
