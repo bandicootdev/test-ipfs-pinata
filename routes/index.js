@@ -19,8 +19,15 @@ app.get('/', (req, res, next) => {
     })
 })
 
-app.get('/file', (req, res, next) => {
+app.get('/file', async (req, res, next) => {
+    const {cid}=req.query;
+    await node.ready;
+    const chunks = []
 
+    for await (const chunk of node.cat(cid) ) {
+        chunks.push(chunk)
+    }
+    res.send(chunks)
 });
 
 app.post('/file', [upload, async (req, res, next) => {
@@ -39,7 +46,10 @@ app.post('/file', [upload, async (req, res, next) => {
     try {
         console.time('load result in ipfs');
         promises = await Promise.all(files.map((file) => {
-            return node.add(file.buffer)
+            return node.add({
+                path:file.filename,
+                content:file.buffer
+            })
         }))
         console.timeEnd('load result in ipfs');
     } catch (err) {
