@@ -1,12 +1,16 @@
 require('dotenv').config();
+const fs = require('fs');
 const express = require('express');
 const multer = require('multer');
 const {pinata} = require("../config/ipfs");
 const {clientIPFS} = require("../config/ipfs");
 const storage = multer.memoryStorage()
 const upload = multer({storage}).array('file', 20)
-const app = express();
 const {ipfs} = require('../utils/helpers');
+// let Duplex = require('stream').Duplex;
+
+const app = express();
+
 let node;
 
 ipfs.on('ipfs', (data) => {
@@ -108,7 +112,8 @@ app.post('/file-client', [upload, async (req, res, next) => {
 app.get('/file-pinata', async (req, res, next) => {
     let file;
     const hash = [
-        'QmXhBgTs98r11qZmr83uHDjLXWwzU9xgvdowSvviDxtmaP'
+        'QmXhBgTs98r11qZmr83uHDjLXWwzU9xgvdowSvviDxtmaP',
+        'QmbGTTaFccQKGQWrSk9uXaQcbWJTcyxmGe55Ym5L9jLybp'
     ]
 
     try {
@@ -121,10 +126,42 @@ app.get('/file-pinata', async (req, res, next) => {
 
     return res.status(200).json({
         ok: true,
-        file
+        file,
+        url:`https://gateway.pinata.cloud/ipfs/${file.IpfsHash}`
     })
 })
 
+app.post('/file-pinata', [upload, async (req, res, next) => {
+    let file;
+    // if (!req.files) {
+    //     return res.status(400).json({
+    //         ok: false,
+    //         message: 'Bad Request'
+    //     })
+    // }
+
+    // let readableStreamForFile = new Duplex();
+    // readableStreamForFile.push(req.files[0].buffer);
+    // readableStreamForFile.push(null);
+    // readableStreamForFile.pause();
+    // console.log(readableStreamForFile)
+
+    const readableStreamForFile = fs.createReadStream('./images/crash.gif');
+
+    try {
+        // readableStreamForFile.resume();
+        file = await pinata().pinFileToIPFS(readableStreamForFile, {})
+            .catch((err) => {
+                throw err
+            })
+    } catch (err) {
+        return next(err)
+    }
+    return res.status(200).json({
+        ok: true,
+        file
+    })
+}])
 
 
 module.exports = app;
