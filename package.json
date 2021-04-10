@@ -1,0 +1,30 @@
+{
+  "name": "test-ipfs-pinata",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thaymerapv/test-ipfs-pinata.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/thaymerapv/test-ipfs-pinata/issues"
+  },
+  "homepage": "https://github.com/thaymerapv/test-ipfs-pinata#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "ipfs": "^0.54.4",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.2",
+    "nodemon": "^2.0.7"
+  }
+}
