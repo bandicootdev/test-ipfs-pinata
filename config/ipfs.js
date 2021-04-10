@@ -1,5 +1,7 @@
 const IPFS = require('ipfs');
+const ipfsClient = require('ipfs-http-client')
 let ipfs = null;
+
 module.exports.startIPFS = async () => {
     if (ipfs) {
         console.log('IPFS already started')
@@ -26,3 +28,12 @@ module.exports.startIPFS = async () => {
     }
     return ipfs;
 }
+
+module.exports.clientIPFS = () => ipfsClient({
+    host: 'localhost',
+    port: 5001,
+    protocol: 'http',
+    // headers: {
+    //     authorization: 'Bearer ' + TOKEN
+    // }
+})

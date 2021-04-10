@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const multer = require('multer');
+const {clientIPFS} = require("../config/ipfs");
 const storage = multer.memoryStorage()
 const upload = multer({storage}).array('file', 20)
 const app = express();
@@ -20,11 +21,11 @@ app.get('/', (req, res, next) => {
 })
 
 app.get('/file', async (req, res, next) => {
-    const {cid}=req.query;
+    const {cid} = req.query;
     await node.ready;
     const chunks = []
 
-    for await (const chunk of node.cat(cid) ) {
+    for await (const chunk of node.cat(cid)) {
         chunks.push(chunk)
     }
     res.send(chunks)
@@ -47,8 +48,8 @@ app.post('/file', [upload, async (req, res, next) => {
         console.time('load result in ipfs');
         promises = await Promise.all(files.map((file) => {
             return node.add({
-                path:file.filename,
-                content:file.buffer
+                path: file.filename,
+                content: file.buffer
             })
         }))
         console.timeEnd('load result in ipfs');
@@ -63,5 +64,43 @@ app.post('/file', [upload, async (req, res, next) => {
     })
 }]);
 
+app.get('/file-client', async (req, res, next) => {
+    const {cid}=req.query;
+    const chunks = [];
+    try {
+        for await (const chunk of clientIPFS().cat(cid)) {
+            chunks.push(chunk)
+        }
+    } catch (err) {
+        next(err)
+    }
 
+    res.send(chunks)
+})
+
+app.post('/file-client', [upload, async (req, res, next) => {
+    let cid;
+    if (!req.files) {
+        return res.status(400).json({
+            ok: false,
+            message: 'Bad Request'
+        })
+    }
+    try {
+        console.time('load result in ipfs');
+         cid = await clientIPFS().add({
+            path: req.files[0].filename,
+            content: req.files[0].buffer
+        })
+        console.timeEnd('load result in ipfs');
+    } catch (err) {
+        next(err)
+    }
+
+    res.status(200).json({
+        ok: true,
+        message: 'files uploaded successfully',
+        cid
+    })
+}])
 module.exports = app;
